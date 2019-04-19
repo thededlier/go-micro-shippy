@@ -48,9 +48,18 @@ func main() {
     log.Fatalf("Could not parse file: %v", err)
   }
 
-  response, err := client.CreateConsignment(context.Background(), consignment)
+  // Create new consignment
+  createResponse, err := client.CreateConsignment(context.Background(), consignment)
   if err != nil {
     log.Fatalf("Failed to create: %v", err)
   }
-  log.Printf("Created: %t", response.Created)
+  log.Printf("Created: %t", createResponse.Created)
+
+  getAllResponse, err := client.GetConsignments(context.Background(), &pb.GetRequest{})
+  if err != nil {
+    log.Fatalf("Failed to list all consignments: %v", err)
+  }
+  for _, consignment := range getAllResponse.Consignments {
+    log.Println(consignment)
+  }
 }
