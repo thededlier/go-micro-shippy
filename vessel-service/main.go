@@ -9,18 +9,18 @@ import (
   micro "github.com/micro/go-micro"
 )
 
-type Repository interface {
+type repository interface {
   FindAvailable(*pb.Specification) (*pb.Vessel, error)
 }
 
 type VesselRepository struct {
-  vessel []*pb.Vessel
+  vessels []*pb.Vessel
 }
 
 // Find the available vessel based on provided Specifications
 func (repo *VesselRepository) FindAvailable(spec *pb.Specification) (*pb.Vessel, error) {
   for _, vessel := range repo.vessels {
-    if spec.Capacity <= vessel.Capacity && spec.max_weight <= vessel.MaxWeight {
+    if spec.Capacity <= vessel.Capacity && spec.MaxWeight <= vessel.MaxWeight {
       return vessel, nil
     }
   }
@@ -50,7 +50,7 @@ func main() {
   repo := &VesselRepository{ vessels }
 
   srv := micro.NewService(
-    micro.Name("go.micro.srv.vessel")
+    micro.Name("go.micro.srv.vessel"),
   )
 
   srv.Init()
