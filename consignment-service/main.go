@@ -59,16 +59,17 @@ func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest, res *
 func main() {
   repo := &Repository{}
 
+  // Create a new service
   srv := micro.NewService(
     // Name must match the same as package name in protobuf definition
-    micro.Name("consignment"),
-    micro.Version("latest")
+    micro.Name("go.micro.srv.consignment"),
+    micro.Version("latest"),
   )
 
   srv.Init()
 
-  // Register handdler
-  pb.RegisterShippingServiceServer(srv.Server(), &service{ repo })
+  // Register handler
+  pb.RegisterShippingServiceHandler(srv.Server(), &service{ repo })
 
   // Run the server
   if err := srv.Run(); err != nil {
