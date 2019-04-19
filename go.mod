@@ -18,6 +18,7 @@ require (
 	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lyft/protoc-gen-validate v0.0.14 // indirect
+	github.com/micro/protobuf v0.0.0-20180321161605-ebd3be6d4fdb // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect

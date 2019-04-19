@@ -1,19 +1,12 @@
 package main
 
 import (
+  "fmt"
   "context"
-  "log"
-  "net"
-  "sync"
 
   // Import generated protobuf code
   pb "github.com/thededlier/go-micro-shippy/consignment-service/proto/consignment"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-)
-
-const (
-  port = ":50051"
+	micro "github.com/micro/go-micro"
 )
 
 type repository interface {
@@ -23,16 +16,13 @@ type repository interface {
 
 // Dummy repo to represent some kind of datastore
 type Repository struct {
-  mu            sync.RWMutex
   consignments  []*pb.Consignment
 }
 
 // Creates a new consignment
 func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
-  repo.mu.Lock()
   updated := append(repo.consignments, consignment)
   repo.consignments = updated
-  repo.mu.Unlock()
   return consignment, nil
 }
 
@@ -48,43 +38,40 @@ type service struct {
 
 // Implemented on our service. Takes context and a request as an argument.
 // These are handled by gRPC server
-func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment) (*pb.Response, error) {
+func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
   // Save our consignment
   consignment, err := s.repo.Create(req)
   if err != nil {
-    return nil, err
+    return err
   }
-
-  return &pb.Response{ Created: true, Consignment: consignment }, nil
+  res.Created = true
+  res.Consignment = consignment
+  return nil
 }
 
 // Get consignments. Implemented on service
-func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest) (*pb.Response, error) {
+func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest, res *pb.Response) error {
   consignments := s.repo.GetAll()
-  return &pb.Response{ Consignments: consignments }, nil
+  res.Consignments = consignments
+  return nil
 }
 
 func main() {
   repo := &Repository{}
 
-  // Set up gRPC server
-  lis, err := net.Listen("tcp", port)
-  if err != nil {
-    log.Fatalf("Failed to listen: %v", err)
-  }
+  srv := micro.NewService(
+    // Name must match the same as package name in protobuf definition
+    micro.Name("consignment"),
+    micro.Version("latest")
+  )
 
-  grpcServer := grpc.NewServer()
+  srv.Init()
 
-  // Register our consignment service with the gRPC server
-  // This will tie our implementation into the auto-generated interface code for our
-	// protobuf definition.
-  pb.RegisterShippingServiceServer(grpcServer, &service{ repo })
+  // Register handdler
+  pb.RegisterShippingServiceServer(srv.Server(), &service{ repo })
 
-  // Register reflection service on gRPC server.
-  reflection.Register(grpcServer)
-
-  log.Println("Running on port: ", port)
-  if err := grpcServer.Serve(lis); err != nil {
-    log.Fatalf("Failed to serve: %v", err)
+  // Run the server
+  if err := srv.Run(); err != nil {
+    fmt.Println(err)
   }
 }
