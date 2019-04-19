@@ -1,10 +1,10 @@
 package main
 
 import (
-  "context",
-  "log",
-  "net",
-  "sync",
+  "context"
+  "log"
+  "net"
+  "sync"
 
   // Import generated protobuf code
   pb "github.com/thededlier/go-micro-shippy/consignment-service/proto/consignment"
@@ -27,7 +27,7 @@ type Repository struct {
 }
 
 // Creates a new consignment
-func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment error) {
+func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
   repo.mu.Lock()
   updated := append(repo.consignments, consignment)
   repo.consignments = updated
