@@ -7,7 +7,7 @@ WORKDIR /app/vessel-service
 COPY . .
 
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o vessel-service
+# RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o vessel-service
 
 # Second Stage
 FROM alpine:latest

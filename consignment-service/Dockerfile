@@ -1,7 +1,7 @@
 # We use the official golang image, which contains all the
 # correct build tools and libraries. Notice `as builder`,
 # this gives this container a name that we can reference later on.
-FROM golang:alpine as builder
+FROM golang:debian as builder
 
 RUN apk --no-cache add git
 
@@ -13,14 +13,14 @@ COPY . .
 
 RUN go mod download
 
-Build the binary, with a few flags which will allow
+# Build the binary, with a few flags which will allow
 # us to run this binary in Alpine.
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o consignment-service
+# RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o consignment-service
 
 # Here we're using a second FROM statement, which is strange,
 # but this tells Docker to start a new build process with this
 # image.
-FROM alpine:latest
+FROM debian:latest
 
 # Security related package, good to have.
 RUN apk --no-cache add ca-certificates
